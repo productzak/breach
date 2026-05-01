@@ -11,6 +11,7 @@ extends CharacterBody2D
 @onready var muzzle: Marker2D = $GunPivot/Muzzle
 
 var can_fire: bool = true
+var _attacking := false
 
 func _ready() -> void:
 	add_to_group("player")
@@ -19,12 +20,33 @@ func _ready() -> void:
 	if stats == null:
 		stats = PlayerStats.new()
 
+func _unhandled_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT):
+		return
+	if event.pressed:
+		_attacking = _enemy_at(get_global_mouse_position()) != null
+		if not _attacking:
+			nav_agent.target_position = get_global_mouse_position()
+	else:
+		_attacking = false
+
 func _process(_delta: float) -> void:
 	gun_pivot.look_at(get_global_mouse_position())
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		nav_agent.target_position = get_global_mouse_position()
-		if can_fire:
+		if _attacking and can_fire:
 			_fire()
+		elif not _attacking:
+			nav_agent.target_position = get_global_mouse_position()
+
+func _enemy_at(world_pos: Vector2) -> Node2D:
+	var q := PhysicsShapeQueryParameters2D.new()
+	var circle := CircleShape2D.new()
+	circle.radius = 20.0
+	q.shape = circle
+	q.transform = Transform2D(0, world_pos)
+	q.collision_mask = 4
+	var hits := get_world_2d().direct_space_state.intersect_shape(q)
+	return hits[0].collider if hits.size() > 0 else null
 
 func _physics_process(_delta: float) -> void:
 	if nav_agent.is_navigation_finished():
