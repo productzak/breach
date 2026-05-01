@@ -87,7 +87,7 @@ func _flash_hit() -> void:
 	t.tween_property($Visual, "modulate", Color.WHITE, 0.11)
 
 func _spawn_damage_number(amount: int) -> void:
-	var dn := load("res://scripts/effects/DamageNumber.gd").new()
+	var dn: Node2D = load("res://scripts/effects/DamageNumber.gd").new()
 	get_tree().current_scene.add_child(dn)
 	dn.global_position = global_position + Vector2(0.0, -16.0)
 	dn.setup(amount)
@@ -99,8 +99,7 @@ func _drop_currency() -> void:
 
 func _spawn_death_effect() -> void:
 	AudioManager.play("enemy_death")
-	var fx := load("res://scenes/effects/DeathEffect.tscn").instantiate()
-	fx.base_color = $Visual.color
+	var fx: Node2D = load("res://scenes/effects/DeathEffect.tscn").instantiate()
 	fx.global_position = global_position
 	get_tree().current_scene.add_child(fx)
 	_camera_shake(2.5, 0.10)

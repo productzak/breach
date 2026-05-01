@@ -53,7 +53,7 @@ func play_selected(target_pos: Vector2, target_node: Node2D = null) -> void:
 	_cooldowns[card.card_name] = card.cooldown
 	card_used.emit(card)
 	AudioManager.play("card_played")
-	var burst := load("res://scripts/effects/GlitchBurst.gd").new()
+	var burst: Node2D = load("res://scripts/effects/GlitchBurst.gd").new()
 	get_tree().current_scene.add_child(burst)
 	burst.global_position = target_pos
 
@@ -122,7 +122,7 @@ func _effect_redirect(target: Node2D, duration: float) -> void:
 
 func _effect_overclock(duration: float) -> void:
 	var player := get_parent()
-	var orig := player.move_speed
+	var orig: float = player.move_speed
 	player.move_speed = orig * 1.8
 	get_tree().create_timer(duration).timeout.connect(func(): player.move_speed = orig)
 

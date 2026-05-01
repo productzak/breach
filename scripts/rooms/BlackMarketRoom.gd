@@ -128,7 +128,7 @@ func _cyberware_column() -> Control:
 
 func _upgrade_column(dm) -> Control:
 	var col := _make_column("UPGRADE CARD")
-	var upgradable := dm.deck.filter(func(c): return c.upgraded_version != null)
+	var upgradable: Array = dm.deck.filter(func(c): return c.upgraded_version != null)
 	if upgradable.is_empty():
 		var lbl := Label.new()
 		lbl.text = "No upgrades\navailable"
@@ -298,7 +298,7 @@ func _shop_item(name_text: String, desc_text: String, stat_text: String,
 		stat_lbl.add_theme_color_override("font_color", Color(0.5, 0.85, 1.0))
 		vbox.add_child(stat_lbl)
 
-	var can_afford := RunManager.player_stats.currency >= cost
+	var can_afford: bool = RunManager.player_stats.currency >= cost
 	var btn := Button.new()
 	btn.text = "BUY  %d CR" % cost
 	btn.disabled = not can_afford

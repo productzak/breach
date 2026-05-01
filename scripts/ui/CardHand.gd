@@ -127,11 +127,11 @@ func _add_slot(card: HackCard) -> void:
 				   locked_overlay = locked_overlay, locked_lbl = locked_lbl})
 
 func _update_slots() -> void:
-	var locked := _deck_manager.cards_locked
+	var locked: bool = _deck_manager.cards_locked
 	for s in _slots:
 		var card: HackCard = s.card
-		var frac := _deck_manager.cooldown_fraction(card)
-		var remaining := _deck_manager.cooldown_remaining(card)
+		var frac: float = _deck_manager.cooldown_fraction(card)
+		var remaining: float = _deck_manager.cooldown_remaining(card)
 		s.cd_overlay.offset_bottom = 100.0 * frac
 		s.cd_lbl.text = "%.0fs" % remaining if remaining > 0 else ""
 		s.sel_border.visible = (not locked and _deck_manager.selected_card == card)

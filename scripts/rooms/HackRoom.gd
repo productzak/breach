@@ -80,7 +80,7 @@ func _spawn_card_cache(pos: Vector2) -> void:
 		if body.is_in_group("player"):
 			var dm = body.get_node_or_null("DeckManager")
 			if dm != null:
-				var pool := dm.get_draft_pool(1)
+				var pool: Array = dm.get_draft_pool(1)
 				if pool.size() > 0:
 					dm.add_card(pool[0])
 			pickup.queue_free()

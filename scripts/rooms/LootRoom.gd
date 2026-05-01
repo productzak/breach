@@ -11,7 +11,7 @@ func _spawn_loot() -> void:
 
 	var loot_types := ["health", "card", "currency"]
 	loot_types.shuffle()
-	var pick := loot_types[0]
+	var pick: String = loot_types[0]
 
 	match pick:
 		"health":

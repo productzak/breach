@@ -44,7 +44,7 @@ func load_data() -> void:
 	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
 	if file == null:
 		return
-	var data := JSON.parse_string(file.get_as_text())
+	var data: Variant = JSON.parse_string(file.get_as_text())
 	if data is Dictionary:
 		persistent_currency = int(data.get("persistent_currency", 0))
 		purchased_unlocks = []

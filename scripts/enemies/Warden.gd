@@ -117,7 +117,7 @@ func stun(duration: float) -> void:
 	tw.tween_callback(func(): _stunned = false; $Visual.modulate = Color.WHITE)
 
 func ping(duration: float) -> void:
-	var orig := $Visual.modulate
+	var orig: Color = $Visual.modulate
 	$Visual.modulate = Color(2.0, 2.0, 0.5)
 	get_tree().create_timer(duration).timeout.connect(func():
 		if is_instance_valid(self): $Visual.modulate = orig)
@@ -160,7 +160,7 @@ func _flash_hit() -> void:
 	t.tween_property($Visual, "modulate", Color.WHITE, 0.13)
 
 func _spawn_damage_number(amount: int) -> void:
-	var dn := load("res://scripts/effects/DamageNumber.gd").new()
+	var dn: Node2D = load("res://scripts/effects/DamageNumber.gd").new()
 	get_tree().current_scene.add_child(dn)
 	dn.global_position = global_position + Vector2(0.0, -22.0)
 	dn.setup(amount)
@@ -173,8 +173,8 @@ func _drop_currency() -> void:
 func _spawn_death_effects() -> void:
 	AudioManager.play("enemy_death")
 	for i in 4:
-		var fx := load("res://scenes/effects/DeathEffect.tscn").instantiate()
-		fx.base_color = Color(0.9, 0.4, 0.1)
+		var fx: Node2D = load("res://scenes/effects/DeathEffect.tscn").instantiate()
+		fx.set("base_color", Color(0.9, 0.4, 0.1))
 		fx.global_position = global_position + Vector2(randf_range(-40.0, 40.0), randf_range(-40.0, 40.0))
 		get_tree().current_scene.add_child(fx)
 	_camera_shake(7.0, 0.35)

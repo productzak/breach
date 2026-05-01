@@ -131,7 +131,7 @@ func on_terminal_breached() -> void:
 func _trigger_breach_stun() -> void:
 	_stunned = true
 	_double_damage = true
-	var orig_color := $Visual.modulate
+	var orig_color: Color = $Visual.modulate
 	$Visual.modulate = Color(0.3, 0.3, 1.0)
 	var tw := create_tween()
 	tw.tween_interval(3.0)
@@ -143,14 +143,14 @@ func _trigger_breach_stun() -> void:
 
 func stun(duration: float) -> void:
 	_stunned = true
-	var orig := $Visual.modulate
+	var orig: Color = $Visual.modulate
 	$Visual.modulate = Color(0.5, 0.5, 1.0)
 	var tw := create_tween()
 	tw.tween_interval(duration)
 	tw.tween_callback(func(): _stunned = false; $Visual.modulate = orig)
 
 func ping(duration: float) -> void:
-	var orig := $Visual.modulate
+	var orig: Color = $Visual.modulate
 	$Visual.modulate = Color(2.0, 2.0, 0.5)
 	get_tree().create_timer(duration).timeout.connect(func():
 		if is_instance_valid(self): $Visual.modulate = orig)
@@ -196,7 +196,7 @@ func _flash_hit() -> void:
 		(Color(1.0, 0.5, 1.0) if _phase == 2 else Color(1.0, 0.15, 0.15)), 0.14)
 
 func _spawn_damage_number(amount: int) -> void:
-	var dn := load("res://scripts/effects/DamageNumber.gd").new()
+	var dn: Node2D = load("res://scripts/effects/DamageNumber.gd").new()
 	get_tree().current_scene.add_child(dn)
 	dn.global_position = global_position + Vector2(0.0, -26.0)
 	dn.setup(amount)
@@ -206,8 +206,8 @@ func _on_death() -> void:
 	if _cards_locked and _dm != null and _dm.has_method("unlock_cards"):
 		_dm.unlock_cards()
 	for i in 6:
-		var fx := load("res://scenes/effects/DeathEffect.tscn").instantiate()
-		fx.base_color = Color(0.85, 0.15, 0.85)
+		var fx: Node2D = load("res://scenes/effects/DeathEffect.tscn").instantiate()
+		fx.set("base_color", Color(0.85, 0.15, 0.85))
 		fx.global_position = global_position + Vector2(randf_range(-60.0, 60.0), randf_range(-60.0, 60.0))
 		get_tree().current_scene.add_child(fx)
 	_camera_shake(9.0, 0.45)
