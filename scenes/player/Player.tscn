@@ -43,7 +43,11 @@ position = Vector2(24, 0)
 [node name="FireTimer" type="Timer" parent="."]
 one_shot = true
 
+[node name="MeleeTimer" type="Timer" parent="."]
+one_shot = true
+
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(1.2, 1.2)
 
 [connection signal="timeout" from="FireTimer" to="." method="_on_fire_timer_timeout"]
+[connection signal="timeout" from="MeleeTimer" to="." method="_on_melee_timer_timeout"]

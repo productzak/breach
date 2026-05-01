@@ -2,15 +2,20 @@ extends CharacterBody2D
 
 @export var move_speed: float = 220.0
 @export var fire_rate: float = 0.12
+@export var melee_range: float = 60.0
+@export var melee_damage: int = 25
+@export var melee_cooldown: float = 0.5
 @export var bullet_scene: PackedScene
 @export var stats: PlayerStats
 
 @onready var nav_agent: NavigationAgent2D = $NavigationAgent2D
 @onready var gun_pivot: Node2D = $GunPivot
 @onready var fire_timer: Timer = $FireTimer
+@onready var melee_timer: Timer = $MeleeTimer
 @onready var muzzle: Marker2D = $GunPivot/Muzzle
 
 var can_fire: bool = true
+var can_melee: bool = true
 var _attacking := false
 
 func _ready() -> void:
@@ -24,8 +29,16 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT):
 		return
 	if event.pressed:
-		_attacking = _enemy_at(get_global_mouse_position()) != null
-		if not _attacking:
+		var enemy := _enemy_at(get_global_mouse_position())
+		if enemy:
+			var dist := global_position.distance_to(enemy.global_position)
+			if dist <= melee_range:
+				_melee_attack(enemy)
+				_attacking = false
+			else:
+				_attacking = true
+		else:
+			_attacking = false
 			nav_agent.target_position = get_global_mouse_position()
 	else:
 		_attacking = false
@@ -66,8 +79,19 @@ func _fire() -> void:
 	bullet.global_position = muzzle.global_position
 	bullet.direction = (get_global_mouse_position() - muzzle.global_position).normalized()
 
+func _melee_attack(target: Node2D) -> void:
+	if not can_melee:
+		return
+	can_melee = false
+	melee_timer.start(melee_cooldown)
+	if target.has_method("take_damage"):
+		target.take_damage(melee_damage)
+
 func _on_fire_timer_timeout() -> void:
 	can_fire = true
+
+func _on_melee_timer_timeout() -> void:
+	can_melee = true
 
 func take_damage(amount: int) -> void:
 	stats.current_health -= amount
