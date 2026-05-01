@@ -7,7 +7,10 @@ var selected_card: HackCard = null
 var _cooldowns: Dictionary = {}
 
 func _ready() -> void:
-	deck = _make_starting_deck()
+	if RunManager.deck_cards.size() > 0:
+		deck.assign(RunManager.deck_cards)
+	else:
+		deck = _make_starting_deck()
 
 func _process(delta: float) -> void:
 	for key in _cooldowns.keys():
@@ -67,13 +70,22 @@ func _apply_effect(card: HackCard, target_pos: Vector2, target_node: Node2D) -> 
 		HackCard.EffectType.REDIRECT:
 			_effect_redirect(target_node, card.effect_duration)
 		HackCard.EffectType.BREACH:
-			pass  # placeholder — no doors/turrets yet
+			_effect_breach(target_pos, card.effect_radius, card.effect_duration)
 		HackCard.EffectType.OVERCLOCK:
 			_effect_overclock(card.effect_duration)
 		HackCard.EffectType.PING:
 			_effect_ping(card.effect_duration)
 		HackCard.EffectType.FIREWALL:
 			_effect_firewall(card.effect_duration)
+
+func _effect_breach(pos: Vector2, radius: float, stun_duration: float) -> void:
+	for node in get_tree().get_nodes_in_group("hackable"):
+		if node.global_position.distance_to(pos) <= radius and node.has_method("on_breach"):
+			node.on_breach(get_parent(), stun_duration)
+			break
+	# Breach+ also stuns nearby enemies
+	if stun_duration > 0.0:
+		_effect_stun(pos, radius * 1.5, stun_duration)
 
 func _effect_stun(pos: Vector2, radius: float, duration: float) -> void:
 	for enemy in get_tree().get_nodes_in_group("enemies"):

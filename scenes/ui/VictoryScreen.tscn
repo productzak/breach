@@ -1,0 +1,53 @@
+[gd_scene load_steps=2 format=3 uid="uid://bvictory0001"]
+
+[ext_resource type="Script" path="res://scripts/ui/VictoryScreen.gd" id="1_script"]
+
+[node name="VictoryScreen" type="CanvasLayer"]
+process_mode = 3
+visible = false
+script = ExtResource("1_script")
+
+[node name="Overlay" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.82)
+mouse_filter = 0
+
+[node name="CenterBox" type="VBoxContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -120.0
+offset_right = 180.0
+offset_bottom = 120.0
+alignment = 1
+
+[node name="Title" type="Label" parent="CenterBox"]
+layout_mode = 2
+text = "RUN COMPLETE"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 42
+theme_override_colors/font_color = Color(0.2, 1.0, 0.5, 1)
+
+[node name="Subtitle" type="Label" parent="CenterBox"]
+layout_mode = 2
+text = "breach successful"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.5, 0.85, 0.65, 0.8)
+
+[node name="Spacer" type="Control" parent="CenterBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 24)
+
+[node name="NewRunButton" type="Button" parent="CenterBox"]
+process_mode = 3
+layout_mode = 2
+text = "NEW RUN"
+theme_override_font_sizes/font_size = 16
+
+[connection signal="pressed" from="CenterBox/NewRunButton" to="." method="_on_new_run_pressed"]

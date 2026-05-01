@@ -12,13 +12,14 @@ config_version=5
 
 config/name="BREACH"
 config/description="Cyberpunk top-down roguelike"
-run/main_scene="res://scenes/rooms/TestRoom.tscn"
+run/main_scene="res://scenes/world/Boot.tscn"
 config/features=PackedStringArray("4.2", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
 GameState="*res://autoloads/GameState.gd"
+RunManager="*res://scripts/world/RunManager.gd"
 
 [display]
 
