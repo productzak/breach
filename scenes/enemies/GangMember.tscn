@@ -1,0 +1,36 @@
+[gd_scene load_steps=4 format=3 uid="uid://bgangmem00001"]
+
+[ext_resource type="Script" path="res://scripts/enemies/GangMember.gd" id="1_gang"]
+
+[sub_resource type="CircleShape2D" id="CircleShape_body"]
+radius = 12.0
+
+[sub_resource type="CircleShape2D" id="CircleShape_detect"]
+radius = 280.0
+
+[node name="GangMember" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_gang")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape_body")
+
+[node name="Visual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -16, 13, 5, 8, 16, -8, 16, -13, 5)
+color = Color(0.72, 0.18, 0.82, 1)
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="DetectionArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="DetectionShape" type="CollisionShape2D" parent="DetectionArea"]
+shape = SubResource("CircleShape_detect")
+
+[node name="AttackTimer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="body_entered" from="DetectionArea" to="." method="_on_detection_area_body_entered"]
+[connection signal="timeout" from="AttackTimer" to="." method="_on_attack_timer_timeout"]

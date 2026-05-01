@@ -3,6 +3,7 @@ extends Node2D
 @export var player_scene: PackedScene
 @export var drone_scene: PackedScene
 @export var security_bot_scene: PackedScene
+@export var gang_member_scene: PackedScene
 
 const ROOM_W := 1280
 const ROOM_H := 720
@@ -86,3 +87,9 @@ func _spawn_entities() -> void:
 			var b := security_bot_scene.instantiate()
 			b.position = pos
 			add_child(b)
+
+	if gang_member_scene:
+		for pos: Vector2 in [Vector2(600, 500), Vector2(750, 300), Vector2(1000, 300)]:
+			var g := gang_member_scene.instantiate()
+			g.position = pos
+			add_child(g)

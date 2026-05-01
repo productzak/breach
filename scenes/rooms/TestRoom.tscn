@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://btestroom001"]
+[gd_scene load_steps=8 format=3 uid="uid://btestroom001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/TestRoom.gd" id="1_room"]
 [ext_resource type="PackedScene" uid="uid://bplayer00001" path="res://scenes/player/Player.tscn" id="2_player"]
@@ -6,12 +6,14 @@
 [ext_resource type="PackedScene" uid="uid://bhud0000001" path="res://scenes/ui/HUD.tscn" id="4_hud"]
 [ext_resource type="PackedScene" uid="uid://bdeath000001" path="res://scenes/ui/DeathScreen.tscn" id="5_death"]
 [ext_resource type="PackedScene" uid="uid://bsecbot000001" path="res://scenes/enemies/SecurityBot.tscn" id="6_secbot"]
+[ext_resource type="PackedScene" uid="uid://bgangmem00001" path="res://scenes/enemies/GangMember.tscn" id="7_gang"]
 
 [node name="TestRoom" type="Node2D"]
 script = ExtResource("1_room")
 player_scene = ExtResource("2_player")
 drone_scene = ExtResource("3_drone")
 security_bot_scene = ExtResource("6_secbot")
+gang_member_scene = ExtResource("7_gang")
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 
