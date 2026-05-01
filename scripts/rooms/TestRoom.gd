@@ -8,6 +8,7 @@ const ROOM_H := 720
 const BORDER := 64
 
 @onready var nav_region: NavigationRegion2D = $NavigationRegion2D
+@onready var death_screen = $DeathScreen
 
 func _ready() -> void:
 	_setup_navigation()
@@ -70,6 +71,7 @@ func _spawn_entities() -> void:
 	if player_scene:
 		var p := player_scene.instantiate()
 		p.position = Vector2(200, 360)
+		p.died.connect(death_screen.show_death)
 		add_child(p)
 
 	if drone_scene:

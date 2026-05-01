@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+signal died
+
 @export var move_speed: float = 220.0
 @export var fire_rate: float = 0.12
 @export var melee_range: float = 60.0
@@ -97,4 +99,5 @@ func take_damage(amount: int) -> void:
 	stats.current_health -= amount
 	if stats.current_health <= 0:
 		stats.current_health = 0
+		died.emit()
 		queue_free()
