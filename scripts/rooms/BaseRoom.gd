@@ -129,6 +129,7 @@ func _spawn_player() -> void:
 	var player := player_scene.instantiate()
 	player.stats = RunManager.player_stats
 	player.died.connect(RunManager.show_death_screen)
+	RunManager.apply_run_modifiers(player)
 	player.position = _player_spawn_pos()
 	add_child(player)
 

@@ -1,15 +1,45 @@
 extends Node
 
-var run_data := {
-	"score": 0,
-	"floor": 1,
-	"cards": [],
-}
+const SAVE_PATH := "user://breach_save.json"
 
-func reset_run() -> void:
-	run_data.score = 0
-	run_data.floor = 1
-	run_data.cards = []
+var persistent_currency: int = 0
+var purchased_unlocks: Array = []
 
-func add_score(amount: int) -> void:
-	run_data.score += amount
+func _ready() -> void:
+	load_data()
+
+func has_unlock(id: String) -> bool:
+	return id in purchased_unlocks
+
+func purchase_unlock(id: String, cost: int) -> bool:
+	if persistent_currency < cost or has_unlock(id):
+		return false
+	persistent_currency -= cost
+	purchased_unlocks.append(id)
+	save_data()
+	return true
+
+func award_run_end(in_run_currency: int) -> int:
+	var award := int(in_run_currency * 0.30)
+	persistent_currency += award
+	save_data()
+	return award
+
+func save_data() -> void:
+	var data := {"persistent_currency": persistent_currency, "purchased_unlocks": purchased_unlocks}
+	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(data))
+
+func load_data() -> void:
+	if not FileAccess.file_exists(SAVE_PATH):
+		return
+	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if file == null:
+		return
+	var data := JSON.parse_string(file.get_as_text())
+	if data is Dictionary:
+		persistent_currency = int(data.get("persistent_currency", 0))
+		purchased_unlocks = []
+		for id in data.get("purchased_unlocks", []):
+			purchased_unlocks.append(str(id))

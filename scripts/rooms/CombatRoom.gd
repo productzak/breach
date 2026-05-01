@@ -18,6 +18,8 @@ func _on_room_ready() -> void:
 	# Small spawn delay so nav map is ready
 	call_deferred("_spawn_enemies")
 
+var _spawned_count := 0
+
 func _spawn_enemies() -> void:
 	var spawn_list := _enemy_list(room_def.floor_num)
 	var positions  := _spread_positions(spawn_list.size())
@@ -28,6 +30,7 @@ func _spawn_enemies() -> void:
 			e.bullet_scene = load("res://scenes/projectiles/EnemyBullet.tscn")
 		e.position = positions[i]
 		add_child(e)
+	_spawned_count   = spawn_list.size()
 	_enemies_spawned = true
 
 func _enemy_list(floor_num: int) -> Array:
@@ -80,5 +83,6 @@ func _process(delta: float) -> void:
 		return
 	if get_tree().get_nodes_in_group("enemies").is_empty():
 		_room_cleared = true
+		RunManager.on_enemies_killed(_spawned_count)
 		unlock_all_doors()
 		RunManager.on_room_cleared(room_def.id)

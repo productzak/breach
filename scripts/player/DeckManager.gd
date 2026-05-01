@@ -11,6 +11,9 @@ func _ready() -> void:
 		deck.assign(RunManager.deck_cards)
 	else:
 		deck = _make_starting_deck()
+		if GameState.has_unlock("ghost_protocol"):  deck.append(_card_ping())
+		if GameState.has_unlock("neural_implant"):  deck.append(_card_overclock())
+		if GameState.has_unlock("vault_key"):       deck.append(_card_firewall())
 
 func _process(delta: float) -> void:
 	for key in _cooldowns.keys():

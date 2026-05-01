@@ -3,6 +3,7 @@ extends BaseRoom
 var _enemies_spawned := false
 var _room_cleared    := false
 var _check_delay     := 2.5
+var _boss_count      := 0
 
 func _on_room_ready() -> void:
 	_add_boss_arena_visuals()
@@ -72,6 +73,7 @@ func _spawn_boss() -> void:
 		add_child(g)
 
 	_enemies_spawned = true
+	_boss_count = 7  # 1 boss + 4 drones + 2 gang
 
 func _process(delta: float) -> void:
 	super._process(delta)
@@ -82,4 +84,5 @@ func _process(delta: float) -> void:
 		return
 	if get_tree().get_nodes_in_group("enemies").is_empty():
 		_room_cleared = true
+		RunManager.on_enemies_killed(_boss_count)
 		RunManager.on_boss_defeated()
