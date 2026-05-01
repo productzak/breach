@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://benemybullet1"]
+
+[ext_resource type="Script" path="res://scripts/projectiles/Bullet.gd" id="1_bullet"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(10, 4)
+
+[node name="EnemyBullet" type="CharacterBody2D"]
+collision_layer = 8
+collision_mask = 3
+script = ExtResource("1_bullet")
+speed = 380.0
+damage = 12
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Visual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-5, -2, 5, -2, 5, 2, -5, 2)
+color = Color(1, 0.45, 0.1, 1)

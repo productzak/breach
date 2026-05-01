@@ -2,6 +2,7 @@ extends Node2D
 
 @export var player_scene: PackedScene
 @export var drone_scene: PackedScene
+@export var security_bot_scene: PackedScene
 
 const ROOM_W := 1280
 const ROOM_H := 720
@@ -79,3 +80,9 @@ func _spawn_entities() -> void:
 			var d := drone_scene.instantiate()
 			d.position = pos
 			add_child(d)
+
+	if security_bot_scene:
+		for pos: Vector2 in [Vector2(700, 180), Vector2(1100, 560)]:
+			var b := security_bot_scene.instantiate()
+			b.position = pos
+			add_child(b)

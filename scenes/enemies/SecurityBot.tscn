@@ -1,0 +1,44 @@
+[gd_scene load_steps=5 format=3 uid="uid://bsecbot000001"]
+
+[ext_resource type="Script" path="res://scripts/enemies/SecurityBot.gd" id="1_secbot"]
+[ext_resource type="PackedScene" uid="uid://benemybullet1" path="res://scenes/projectiles/EnemyBullet.tscn" id="2_bullet"]
+
+[sub_resource type="RectangleShape2D" id="RectShape_body"]
+size = Vector2(24, 24)
+
+[sub_resource type="CircleShape2D" id="CircleShape_detect"]
+radius = 350.0
+
+[node name="SecurityBot" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_secbot")
+bullet_scene = ExtResource("2_bullet")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectShape_body")
+
+[node name="Visual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-12, -14, 12, -14, 14, -12, 14, 12, 12, 14, -12, 14, -14, 12, -14, -12)
+color = Color(0.45, 0.5, 0.55, 1)
+
+[node name="GunPivot" type="Node2D" parent="."]
+
+[node name="GunBarrel" type="Polygon2D" parent="GunPivot"]
+polygon = PackedVector2Array(4, -3, 20, -3, 20, 3, 4, 3)
+color = Color(0.3, 0.35, 0.4, 1)
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="DetectionArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="DetectionShape" type="CollisionShape2D" parent="DetectionArea"]
+shape = SubResource("CircleShape_detect")
+
+[node name="ShootTimer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="body_entered" from="DetectionArea" to="." method="_on_detection_area_body_entered"]
+[connection signal="timeout" from="ShootTimer" to="." method="_on_shoot_timer_timeout"]
