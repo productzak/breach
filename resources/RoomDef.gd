@@ -1,7 +1,7 @@
 class_name RoomDef
 extends Resource
 
-enum Type { HUB, COMBAT, HACK, LOOT, BLACK_MARKET, BOSS }
+enum Type { HUB, COMBAT, HACK, LOOT, BLACK_MARKET, BOSS, WARDEN }
 
 const NORTH := 0
 const EAST  := 1

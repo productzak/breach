@@ -4,7 +4,9 @@ signal card_used(card: HackCard)
 
 var deck: Array[HackCard] = []
 var selected_card: HackCard = null
+var cards_locked := false
 var _cooldowns: Dictionary = {}
+var _lock_timer := 0.0
 
 func _ready() -> void:
 	if RunManager.deck_cards.size() > 0:
@@ -20,9 +22,22 @@ func _process(delta: float) -> void:
 		_cooldowns[key] = maxf(_cooldowns[key] - delta, 0.0)
 		if _cooldowns[key] <= 0.0:
 			_cooldowns.erase(key)
+	if cards_locked and _lock_timer != INF:
+		_lock_timer -= delta
+		if _lock_timer <= 0.0:
+			cards_locked = false
+
+func lock_cards(duration: float) -> void:
+	cards_locked = true
+	_lock_timer = duration
+	selected_card = null
+
+func unlock_cards() -> void:
+	cards_locked = false
+	_lock_timer = 0.0
 
 func select_card(card: HackCard) -> void:
-	if is_on_cooldown(card):
+	if cards_locked or is_on_cooldown(card):
 		return
 	selected_card = card if selected_card != card else null
 
@@ -30,7 +45,7 @@ func cancel_selection() -> void:
 	selected_card = null
 
 func play_selected(target_pos: Vector2, target_node: Node2D = null) -> void:
-	if selected_card == null:
+	if selected_card == null or cards_locked:
 		return
 	var card := selected_card
 	selected_card = null

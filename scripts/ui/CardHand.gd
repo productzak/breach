@@ -79,20 +79,45 @@ func _add_slot(card: HackCard) -> void:
 	sel_border.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(sel_border)
 
+	var locked_overlay := ColorRect.new()
+	locked_overlay.color = Color(0.55, 0.0, 0.0, 0.78)
+	locked_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	locked_overlay.visible = false
+	locked_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(locked_overlay)
+
+	var locked_lbl := Label.new()
+	locked_lbl.text = "LOCKED"
+	locked_lbl.add_theme_font_size_override("font_size", 9)
+	locked_lbl.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
+	locked_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	locked_lbl.set_anchors_preset(Control.PRESET_CENTER)
+	locked_lbl.offset_left = -30
+	locked_lbl.offset_right = 30
+	locked_lbl.offset_top = -8
+	locked_lbl.offset_bottom = 8
+	locked_lbl.visible = false
+	locked_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(locked_lbl)
+
 	panel.gui_input.connect(func(e): _on_slot_input(e, card))
 	hbox.add_child(panel)
 	_slots.append({card = card, panel = panel,
 				   cd_overlay = cd_overlay, cd_lbl = cd_lbl,
-				   sel_border = sel_border})
+				   sel_border = sel_border,
+				   locked_overlay = locked_overlay, locked_lbl = locked_lbl})
 
 func _update_slots() -> void:
+	var locked := _deck_manager.cards_locked
 	for s in _slots:
 		var card: HackCard = s.card
 		var frac := _deck_manager.cooldown_fraction(card)
 		var remaining := _deck_manager.cooldown_remaining(card)
 		s.cd_overlay.offset_bottom = 100.0 * frac
 		s.cd_lbl.text = "%.0fs" % remaining if remaining > 0 else ""
-		s.sel_border.visible = (_deck_manager.selected_card == card)
+		s.sel_border.visible = (not locked and _deck_manager.selected_card == card)
+		s.locked_overlay.visible = locked
+		s.locked_lbl.visible = locked
 
 func _on_slot_input(event: InputEvent, card: HackCard) -> void:
 	if event is InputEventMouseButton \

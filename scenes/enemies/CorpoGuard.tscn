@@ -1,0 +1,45 @@
+[gd_scene load_steps=4 format=3 uid="uid://corpoguard001"]
+
+[ext_resource type="Script" path="res://scripts/enemies/CorpoGuard.gd" id="1_cguard"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape_body"]
+radius = 12.0
+height = 28.0
+
+[sub_resource type="CircleShape2D" id="CircleShape_detect"]
+radius = 300.0
+
+[node name="CorpoGuard" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_cguard")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape_body")
+
+[node name="Visual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -17, 11, -8, 13, 6, 8, 17, -8, 17, -13, 6, -11, -8)
+color = Color(0.22, 0.35, 0.55, 1)
+
+[node name="ShieldVisual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-18, -22, 18, -22, 22, 0, 18, 22, -18, 22, -22, 0)
+color = Color(0.3, 0.6, 1.0, 0.35)
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="DetectionArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="DetectionShape" type="CollisionShape2D" parent="DetectionArea"]
+shape = SubResource("CircleShape_detect")
+
+[node name="AttackTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="PatrolTimer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="body_entered" from="DetectionArea" to="." method="_on_detection_area_body_entered"]
+[connection signal="timeout" from="AttackTimer" to="." method="_on_attack_timer_timeout"]
+[connection signal="timeout" from="PatrolTimer" to="." method="_on_patrol_timer_timeout"]

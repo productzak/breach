@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3 uid="uid://overseer00001"]
+
+[ext_resource type="Script" path="res://scripts/enemies/Overseer.gd" id="1_overseer"]
+[ext_resource type="PackedScene" uid="uid://benemybullet1" path="res://scenes/projectiles/EnemyBullet.tscn" id="2_bullet"]
+
+[sub_resource type="RectangleShape2D" id="RectShape_body"]
+size = Vector2(32, 32)
+
+[node name="Overseer" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_overseer")
+bullet_scene = ExtResource("2_bullet")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectShape_body")
+
+[node name="Visual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -22, 16, -16, 22, 0, 16, 16, 0, 22, -16, 16, -22, 0, -16, -16)
+color = Color(0.45, 0.1, 0.65, 1)
+
+[node name="InnerRing" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -12, 8, -8, 12, 0, 8, 8, 0, 12, -8, 8, -12, 0, -8, -8)
+color = Color(0.8, 0.2, 1.0, 1)
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="ShootTimer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="timeout" from="ShootTimer" to="." method="_on_shoot_timer_timeout"]

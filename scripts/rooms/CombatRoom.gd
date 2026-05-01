@@ -1,9 +1,11 @@
 extends BaseRoom
 
 const ENEMY_SCENES := {
-	"drone": "res://scenes/enemies/Drone.tscn",
-	"gang":  "res://scenes/enemies/GangMember.tscn",
-	"bot":   "res://scenes/enemies/SecurityBot.tscn",
+	"drone":  "res://scenes/enemies/Drone.tscn",
+	"gang":   "res://scenes/enemies/GangMember.tscn",
+	"bot":    "res://scenes/enemies/SecurityBot.tscn",
+	"corpo":  "res://scenes/enemies/CorpoGuard.tscn",
+	"police": "res://scenes/enemies/CorruptPolice.tscn",
 }
 
 var _enemies_spawned := false
@@ -23,11 +25,12 @@ var _spawned_count := 0
 func _spawn_enemies() -> void:
 	var spawn_list := _enemy_list(room_def.floor_num)
 	var positions  := _spread_positions(spawn_list.size())
+	var bullet_tscn := load("res://scenes/projectiles/EnemyBullet.tscn")
 	for i in spawn_list.size():
 		var scene := load(ENEMY_SCENES[spawn_list[i]]) as PackedScene
 		var e     := scene.instantiate()
-		if spawn_list[i] == "bot":
-			e.bullet_scene = load("res://scenes/projectiles/EnemyBullet.tscn")
+		if spawn_list[i] in ["bot", "police"]:
+			e.bullet_scene = bullet_tscn
 		e.position = positions[i]
 		add_child(e)
 	_spawned_count   = spawn_list.size()
@@ -37,16 +40,21 @@ func _enemy_list(floor_num: int) -> Array:
 	var list: Array = []
 	match floor_num:
 		1:
-			for _i in randi_range(3, 4): list.append("drone")
+			for _i in randi_range(2, 3): list.append("drone")
 			for _i in randi_range(1, 2): list.append("gang")
+			if randf() > 0.5: list.append("police")
 		2:
-			for _i in randi_range(3, 5): list.append("drone")
-			for _i in randi_range(2, 3): list.append("gang")
-			list.append("bot")
-		_:
 			for _i in randi_range(2, 4): list.append("drone")
-			for _i in randi_range(3, 4): list.append("gang")
+			for _i in randi_range(1, 2): list.append("gang")
+			list.append("bot")
+			if randf() > 0.4: list.append("police")
+			if randf() > 0.6: list.append("corpo")
+		_:
+			for _i in randi_range(2, 3): list.append("drone")
+			for _i in randi_range(2, 3): list.append("gang")
 			for _i in randi_range(1, 2): list.append("bot")
+			for _i in randi_range(1, 2): list.append("corpo")
+			if randf() > 0.3: list.append("police")
 	list.shuffle()
 	return list
 

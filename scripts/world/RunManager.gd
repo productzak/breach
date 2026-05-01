@@ -10,6 +10,7 @@ const SCENES := {
 	RoomDef.Type.LOOT:         "res://scenes/rooms/LootRoom.tscn",
 	RoomDef.Type.BLACK_MARKET: "res://scenes/rooms/BlackMarketRoom.tscn",
 	RoomDef.Type.BOSS:         "res://scenes/rooms/BossRoom.tscn",
+	RoomDef.Type.WARDEN:       "res://scenes/rooms/WardenRoom.tscn",
 }
 
 # ── Persistent run state ──────────────────────────────────────────────────────
@@ -38,6 +39,9 @@ var _victory_screen = null
 var _card_hand   = null
 var _draft_screen = null
 var _map_ui      = null
+var _boss_hud    = null
+
+var _warden_cleared := false
 
 func _ready() -> void:
 	_setup_persistent_ui()
@@ -56,6 +60,8 @@ func _setup_persistent_ui() -> void:
 	add_child(_draft_screen)
 	_map_ui = load("res://scenes/ui/MapUI.tscn").instantiate()
 	add_child(_map_ui)
+	_boss_hud = load("res://scenes/ui/BossHUD.tscn").instantiate()
+	add_child(_boss_hud)
 
 # ── Navigation ────────────────────────────────────────────────────────────────
 
@@ -75,6 +81,7 @@ func start_run() -> void:
 	active_cyberware.clear()
 	active_weapon = null
 	current_floor = 1
+	_warden_cleared = false
 	_apply_stat_cyberware()
 	_generate_and_load()
 
@@ -88,7 +95,12 @@ func _set_gameplay_ui(visible: bool) -> void:
 	# map/draft/death/victory manage their own visibility
 
 func _generate_and_load() -> void:
-	if current_floor <= 3:
+	if current_floor == 3 and not _warden_cleared:
+		rooms.clear()
+		var warden := RoomDef.new()
+		warden.id = 0; warden.type = RoomDef.Type.WARDEN; warden.floor_num = current_floor
+		rooms[0] = warden
+	elif current_floor <= 3:
 		rooms = FloorGenerator.generate(current_floor)
 	else:
 		rooms.clear()
@@ -166,6 +178,11 @@ func _check_all_cleared() -> void:
 func show_death_screen() -> void:
 	_finalize_run(false)
 	_death_screen.show_death()
+
+func on_warden_defeated() -> void:
+	_warden_cleared = true
+	_save_deck()
+	_generate_and_load()
 
 func on_boss_defeated() -> void:
 	if rooms.has(0):

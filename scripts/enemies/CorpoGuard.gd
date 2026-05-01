@@ -2,14 +2,14 @@ extends CharacterBody2D
 
 enum State { IDLE, CHASE, ATTACK }
 
-@export var move_speed: float = 160.0
-@export var health: int = 20
-@export var detection_radius: float = 280.0
-@export var attack_range: float = 38.0
-@export var attack_damage: int = 15
-@export var attack_rate: float = 0.7
-@export var patrol_radius: float = 150.0
-@export var currency_drop: int = 8
+@export var move_speed: float = 120.0
+@export var health: int = 70
+@export var detection_radius: float = 300.0
+@export var attack_range: float = 42.0
+@export var attack_damage: int = 20
+@export var attack_rate: float = 1.0
+@export var patrol_radius: float = 130.0
+@export var currency_drop: int = 18
 
 @onready var nav_agent: NavigationAgent2D = $NavigationAgent2D
 @onready var attack_timer: Timer = $AttackTimer
@@ -20,15 +20,22 @@ var player: Node2D = null
 var spawn_pos: Vector2
 var _stunned := false
 var _redirected := false
+var _shield_active := true
+var _shield_timer := 0.0
+
+const SHIELD_ON_DURATION  := 4.0
+const SHIELD_OFF_DURATION := 1.5
 
 func _ready() -> void:
 	add_to_group("enemies")
+	add_to_group("hackable")
 	spawn_pos = global_position
 	nav_agent.path_desired_distance = 4.0
 	nav_agent.target_desired_distance = 4.0
 	attack_timer.wait_time = attack_rate
 	attack_timer.one_shot = true
 	patrol_timer.one_shot = true
+	_shield_timer = SHIELD_ON_DURATION
 	call_deferred("_pick_patrol_point")
 
 func _on_detection_area_body_entered(body: Node2D) -> void:
@@ -36,22 +43,27 @@ func _on_detection_area_body_entered(body: Node2D) -> void:
 		player = body
 		state = State.CHASE
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
+	_tick_shield(delta)
 	if _stunned:
 		velocity = Vector2.ZERO
 		move_and_slide()
 		return
-
 	if not is_instance_valid(player):
 		player = null
 		state = State.IDLE
-
 	match state:
 		State.IDLE:   _do_idle()
 		State.CHASE:  _do_chase()
 		State.ATTACK: _do_attack()
-
 	move_and_slide()
+
+func _tick_shield(delta: float) -> void:
+	_shield_timer -= delta
+	if _shield_timer <= 0.0:
+		_shield_active = not _shield_active
+		_shield_timer = SHIELD_ON_DURATION if _shield_active else SHIELD_OFF_DURATION
+		$ShieldVisual.visible = _shield_active
 
 func _do_idle() -> void:
 	_scan_for_player()
@@ -133,12 +145,18 @@ func redirect(duration: float) -> void:
 	)
 
 func ping(duration: float) -> void:
-	var orig := $Visual.modulate
 	$Visual.modulate = Color(2.0, 2.0, 0.5)
-	get_tree().create_timer(duration).timeout.connect(func(): $Visual.modulate = orig)
+	get_tree().create_timer(duration).timeout.connect(func():
+		if is_instance_valid(self): $Visual.modulate = Color.WHITE)
+
+func on_breach(_player_node, duration: float) -> void:
+	_shield_active = false
+	_shield_timer = duration
+	$ShieldVisual.visible = false
 
 func take_damage(amount: int) -> void:
-	health -= amount
+	var actual := int(amount * 0.2) if _shield_active else amount
+	health -= actual
 	if health <= 0:
 		_drop_currency()
 		_spawn_death_effect()

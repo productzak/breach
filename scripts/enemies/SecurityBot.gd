@@ -153,9 +153,16 @@ func take_damage(amount: int) -> void:
 	health -= amount
 	if health <= 0:
 		_drop_currency()
+		_spawn_death_effect()
 		queue_free()
 
 func _drop_currency() -> void:
 	var players := get_tree().get_nodes_in_group("player")
 	if not players.is_empty() and players[0].get("stats") != null:
 		players[0].stats.currency += currency_drop
+
+func _spawn_death_effect() -> void:
+	var fx := load("res://scenes/effects/DeathEffect.tscn").instantiate()
+	fx.base_color = $Visual.color
+	fx.global_position = global_position
+	get_tree().current_scene.add_child(fx)

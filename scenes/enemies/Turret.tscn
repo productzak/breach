@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3 uid="uid://turret000001"]
+
+[ext_resource type="Script" path="res://scripts/enemies/Turret.gd" id="1_turret"]
+[ext_resource type="PackedScene" uid="uid://benemybullet1" path="res://scenes/projectiles/EnemyBullet.tscn" id="2_bullet"]
+
+[sub_resource type="RectangleShape2D" id="RectShape_body"]
+size = Vector2(20, 20)
+
+[node name="Turret" type="StaticBody2D"]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("1_turret")
+bullet_scene = ExtResource("2_bullet")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectShape_body")
+
+[node name="Visual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-10, -10, 10, -10, 10, 10, -10, 10)
+color = Color(0.55, 0.15, 0.1, 1)
+
+[node name="GunPivot" type="Node2D" parent="."]
+
+[node name="GunBarrel" type="Polygon2D" parent="GunPivot"]
+polygon = PackedVector2Array(4, -3, 22, -3, 22, 3, 4, 3)
+color = Color(0.35, 0.1, 0.08, 1)
+
+[node name="ShootTimer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="timeout" from="ShootTimer" to="." method="_on_shoot_timer_timeout"]

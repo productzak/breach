@@ -1,0 +1,54 @@
+[gd_scene load_steps=7 format=3 uid="uid://warden000001"]
+
+[ext_resource type="Script" path="res://scripts/enemies/Warden.gd" id="1_warden"]
+[ext_resource type="PackedScene" uid="uid://benemybullet1" path="res://scenes/projectiles/EnemyBullet.tscn" id="2_bullet"]
+
+[sub_resource type="RectangleShape2D" id="RectShape_body"]
+size = Vector2(28, 28)
+
+[sub_resource type="CapsuleShape2D" id="CapsShape_shield"]
+radius = 6.0
+height = 80.0
+
+[node name="Warden" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_warden")
+bullet_scene = ExtResource("2_bullet")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectShape_body")
+
+[node name="Visual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-14, -18, 14, -18, 18, -14, 18, 14, 14, 18, -14, 18, -18, 14, -18, -14)
+color = Color(0.55, 0.35, 0.1, 1)
+
+[node name="CornerTL" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-18, -18, -10, -18, -18, -10)
+color = Color(0.9, 0.5, 0.1, 1)
+
+[node name="CornerTR" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(10, -18, 18, -18, 18, -10)
+color = Color(0.9, 0.5, 0.1, 1)
+
+[node name="ShieldArm" type="Node2D" parent="."]
+
+[node name="ShieldArea" type="Area2D" parent="ShieldArm"]
+position = Vector2(50, 0)
+collision_layer = 0
+collision_mask = 8
+
+[node name="ShieldShape" type="CollisionShape2D" parent="ShieldArm/ShieldArea"]
+shape = SubResource("CapsShape_shield")
+
+[node name="ShieldVisual" type="Polygon2D" parent="ShieldArm"]
+polygon = PackedVector2Array(10, -8, 90, -8, 90, 8, 10, 8)
+color = Color(0.9, 0.6, 0.15, 0.55)
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="ShootTimer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="body_entered" from="ShieldArm/ShieldArea" to="." method="_on_shield_area_body_entered"]
+[connection signal="timeout" from="ShootTimer" to="." method="_on_shoot_timer_timeout"]
