@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://bplayer00001"]
+[gd_scene load_steps=7 format=3 uid="uid://bplayer00001"]
 
 [ext_resource type="Script" path="res://scripts/player/Player.gd" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://bbullet00001" path="res://scenes/projectiles/Bullet.tscn" id="2_bullet"]
 [ext_resource type="Script" path="res://resources/PlayerStats.gd" id="3_stats"]
+[ext_resource type="PackedScene" uid="uid://bdeckmgr0001" path="res://scenes/player/DeckManager.tscn" id="4_dm"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1"]
 radius = 14.0
@@ -48,6 +49,8 @@ one_shot = true
 
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(1.2, 1.2)
+
+[node name="DeckManager" parent="." instance=ExtResource("4_dm")]
 
 [connection signal="timeout" from="FireTimer" to="." method="_on_fire_timer_timeout"]
 [connection signal="timeout" from="MeleeTimer" to="." method="_on_melee_timer_timeout"]

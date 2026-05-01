@@ -11,11 +11,28 @@ const BORDER := 64
 
 @onready var nav_region: NavigationRegion2D = $NavigationRegion2D
 @onready var death_screen = $DeathScreen
+@onready var draft_screen = $DraftScreen
+
+var _player_ref: Node = null
+var _enemies_spawned := false
+var _room_cleared := false
+var _clear_check_delay := 2.0
 
 func _ready() -> void:
 	_setup_navigation()
 	_build_geometry()
 	_spawn_entities()
+
+func _process(delta: float) -> void:
+	if _room_cleared or not _enemies_spawned:
+		return
+	if _clear_check_delay > 0.0:
+		_clear_check_delay -= delta
+		return
+	if get_tree().get_nodes_in_group("enemies").is_empty():
+		_room_cleared = true
+		if is_instance_valid(_player_ref):
+			draft_screen.show_draft(_player_ref.get_node("DeckManager"))
 
 func _setup_navigation() -> void:
 	var nav_poly := NavigationPolygon.new()
@@ -75,6 +92,7 @@ func _spawn_entities() -> void:
 		p.position = Vector2(200, 360)
 		p.died.connect(death_screen.show_death)
 		add_child(p)
+		_player_ref = p
 
 	if drone_scene:
 		for pos: Vector2 in [Vector2(950, 220), Vector2(1080, 420), Vector2(840, 560)]:
@@ -93,3 +111,5 @@ func _spawn_entities() -> void:
 			var g := gang_member_scene.instantiate()
 			g.position = pos
 			add_child(g)
+
+	_enemies_spawned = true

@@ -15,9 +15,11 @@ signal died
 @onready var fire_timer: Timer = $FireTimer
 @onready var melee_timer: Timer = $MeleeTimer
 @onready var muzzle: Marker2D = $GunPivot/Muzzle
+@onready var deck_manager = $DeckManager
 
 var can_fire: bool = true
 var can_melee: bool = true
+var invincible: bool = false
 var _attacking := false
 
 func _ready() -> void:
@@ -28,9 +30,24 @@ func _ready() -> void:
 		stats = PlayerStats.new()
 
 func _unhandled_input(event: InputEvent) -> void:
+	# Right-click always cancels card selection
+	if event is InputEventMouseButton \
+			and event.button_index == MOUSE_BUTTON_RIGHT \
+			and event.pressed:
+		deck_manager.cancel_selection()
+		return
+
 	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT):
 		return
+
 	if event.pressed:
+		# Targeting mode: card click activates the selected card
+		if deck_manager.selected_card != null:
+			var target := _enemy_at(get_global_mouse_position())
+			deck_manager.play_selected(get_global_mouse_position(), target)
+			return
+
+		# Normal: move or attack
 		var enemy := _enemy_at(get_global_mouse_position())
 		if enemy:
 			var dist := global_position.distance_to(enemy.global_position)
@@ -47,6 +64,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _process(_delta: float) -> void:
 	gun_pivot.look_at(get_global_mouse_position())
+
+	if deck_manager.selected_card != null:
+		Input.set_default_cursor_shape(Input.CURSOR_CROSS)
+		return
+	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		if _attacking and can_fire:
 			_fire()
@@ -96,6 +119,8 @@ func _on_melee_timer_timeout() -> void:
 	can_melee = true
 
 func take_damage(amount: int) -> void:
+	if invincible:
+		return
 	stats.current_health -= amount
 	if stats.current_health <= 0:
 		stats.current_health = 0

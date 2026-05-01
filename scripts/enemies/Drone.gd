@@ -17,6 +17,8 @@ enum State { IDLE, CHASE, ATTACK }
 var state: State = State.IDLE
 var player: Node2D = null
 var spawn_pos: Vector2
+var _stunned := false
+var _redirected := false
 
 func _ready() -> void:
 	add_to_group("enemies")
@@ -34,6 +36,11 @@ func _on_detection_area_body_entered(body: Node2D) -> void:
 		state = State.CHASE
 
 func _physics_process(_delta: float) -> void:
+	if _stunned:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
 	if not is_instance_valid(player):
 		player = null
 		if state != State.IDLE:
@@ -96,6 +103,39 @@ func _on_attack_timer_timeout() -> void:
 		return
 	player.take_damage(attack_damage)
 	attack_timer.start()
+
+func stun(duration: float) -> void:
+	_stunned = true
+	$Visual.modulate = Color(0.85, 0.85, 1.0, 0.65)
+	var t := create_tween()
+	t.tween_interval(duration)
+	t.tween_callback(func(): _stunned = false; $Visual.modulate = Color.WHITE)
+
+func redirect(duration: float) -> void:
+	if _redirected:
+		return
+	var enemies := get_tree().get_nodes_in_group("enemies")
+	enemies.erase(self)
+	if enemies.is_empty():
+		return
+	_redirected = true
+	var old_player := player
+	player = enemies.pick_random()
+	state = State.CHASE
+	$Visual.modulate = Color(1.5, 0.5, 1.5)
+	var t := create_tween()
+	t.tween_interval(duration)
+	t.tween_callback(func():
+		_redirected = false
+		player = old_player if is_instance_valid(old_player) else null
+		state = State.IDLE if player == null else State.CHASE
+		$Visual.modulate = Color.WHITE
+	)
+
+func ping(duration: float) -> void:
+	var orig := $Visual.modulate
+	$Visual.modulate = Color(2.0, 2.0, 0.5)
+	get_tree().create_timer(duration).timeout.connect(func(): $Visual.modulate = orig)
 
 func take_damage(amount: int) -> void:
 	health -= amount

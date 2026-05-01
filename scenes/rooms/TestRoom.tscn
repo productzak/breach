@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://btestroom001"]
+[gd_scene load_steps=10 format=3 uid="uid://btestroom001"]
 
 [ext_resource type="Script" path="res://scripts/rooms/TestRoom.gd" id="1_room"]
 [ext_resource type="PackedScene" uid="uid://bplayer00001" path="res://scenes/player/Player.tscn" id="2_player"]
@@ -7,6 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://bdeath000001" path="res://scenes/ui/DeathScreen.tscn" id="5_death"]
 [ext_resource type="PackedScene" uid="uid://bsecbot000001" path="res://scenes/enemies/SecurityBot.tscn" id="6_secbot"]
 [ext_resource type="PackedScene" uid="uid://bgangmem00001" path="res://scenes/enemies/GangMember.tscn" id="7_gang"]
+[ext_resource type="PackedScene" uid="uid://bcardhand001" path="res://scenes/ui/CardHand.tscn" id="8_ch"]
+[ext_resource type="PackedScene" uid="uid://bdraft000001" path="res://scenes/ui/DraftScreen.tscn" id="9_draft"]
 
 [node name="TestRoom" type="Node2D"]
 script = ExtResource("1_room")
@@ -20,3 +22,7 @@ gang_member_scene = ExtResource("7_gang")
 [node name="HUD" parent="." instance=ExtResource("4_hud")]
 
 [node name="DeathScreen" parent="." instance=ExtResource("5_death")]
+
+[node name="CardHand" parent="." instance=ExtResource("8_ch")]
+
+[node name="DraftScreen" parent="." instance=ExtResource("9_draft")]

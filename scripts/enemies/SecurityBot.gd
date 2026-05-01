@@ -20,6 +20,8 @@ enum State { IDLE, CHASE, ATTACK }
 var state: State = State.IDLE
 var player: Node2D = null
 var spawn_pos: Vector2
+var _stunned := false
+var _redirected := false
 
 func _ready() -> void:
 	add_to_group("enemies")
@@ -37,17 +39,19 @@ func _on_detection_area_body_entered(body: Node2D) -> void:
 		state = State.CHASE
 
 func _physics_process(_delta: float) -> void:
+	if _stunned:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
 	if not is_instance_valid(player):
 		player = null
 		state = State.IDLE
 
 	match state:
-		State.IDLE:
-			_do_idle()
-		State.CHASE:
-			_do_chase()
-		State.ATTACK:
-			_do_attack()
+		State.IDLE:   _do_idle()
+		State.CHASE:  _do_chase()
+		State.ATTACK: _do_attack()
 
 	move_and_slide()
 
@@ -60,21 +64,6 @@ func _do_idle() -> void:
 	else:
 		var next := nav_agent.get_next_path_position()
 		velocity = (next - global_position).normalized() * (move_speed * 0.4)
-
-func _pick_patrol_point() -> void:
-	var angle := randf_range(0.0, TAU)
-	var dist := randf_range(30.0, patrol_radius)
-	nav_agent.target_position = spawn_pos + Vector2(cos(angle), sin(angle)) * dist
-
-func _on_patrol_timer_timeout() -> void:
-	_pick_patrol_point()
-
-func _scan_for_player() -> void:
-	for p in get_tree().get_nodes_in_group("player"):
-		if global_position.distance_to(p.global_position) <= detection_radius:
-			player = p
-			state = State.CHASE
-			break
 
 func _do_chase() -> void:
 	var dist := global_position.distance_to(player.global_position)
@@ -98,6 +87,21 @@ func _do_attack() -> void:
 	if shoot_timer.is_stopped():
 		shoot_timer.start()
 
+func _scan_for_player() -> void:
+	for p in get_tree().get_nodes_in_group("player"):
+		if global_position.distance_to(p.global_position) <= detection_radius:
+			player = p
+			state = State.CHASE
+			break
+
+func _pick_patrol_point() -> void:
+	var angle := randf_range(0.0, TAU)
+	var dist := randf_range(30.0, patrol_radius)
+	nav_agent.target_position = spawn_pos + Vector2(cos(angle), sin(angle)) * dist
+
+func _on_patrol_timer_timeout() -> void:
+	_pick_patrol_point()
+
 func _on_shoot_timer_timeout() -> void:
 	if state != State.ATTACK or not is_instance_valid(player):
 		return
@@ -111,6 +115,39 @@ func _shoot() -> void:
 	get_tree().current_scene.add_child(bullet)
 	bullet.global_position = global_position
 	bullet.direction = (player.global_position - global_position).normalized()
+
+func stun(duration: float) -> void:
+	_stunned = true
+	$Visual.modulate = Color(0.85, 0.85, 1.0, 0.65)
+	var t := create_tween()
+	t.tween_interval(duration)
+	t.tween_callback(func(): _stunned = false; $Visual.modulate = Color.WHITE)
+
+func redirect(duration: float) -> void:
+	if _redirected:
+		return
+	var enemies := get_tree().get_nodes_in_group("enemies")
+	enemies.erase(self)
+	if enemies.is_empty():
+		return
+	_redirected = true
+	var old_player := player
+	player = enemies.pick_random()
+	state = State.CHASE
+	$Visual.modulate = Color(1.5, 0.5, 1.5)
+	var t := create_tween()
+	t.tween_interval(duration)
+	t.tween_callback(func():
+		_redirected = false
+		player = old_player if is_instance_valid(old_player) else null
+		state = State.IDLE if player == null else State.CHASE
+		$Visual.modulate = Color.WHITE
+	)
+
+func ping(duration: float) -> void:
+	var orig := $Visual.modulate
+	$Visual.modulate = Color(2.0, 2.0, 0.5)
+	get_tree().create_timer(duration).timeout.connect(func(): $Visual.modulate = orig)
 
 func take_damage(amount: int) -> void:
 	health -= amount
