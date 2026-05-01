@@ -4,6 +4,8 @@ const SAVE_PATH := "user://breach_save.json"
 
 var persistent_currency: int = 0
 var purchased_unlocks: Array = []
+var crt_enabled: bool = false
+var master_volume: float = 1.0
 
 func _ready() -> void:
 	load_data()
@@ -26,7 +28,12 @@ func award_run_end(in_run_currency: int) -> int:
 	return award
 
 func save_data() -> void:
-	var data := {"persistent_currency": persistent_currency, "purchased_unlocks": purchased_unlocks}
+	var data := {
+		"persistent_currency": persistent_currency,
+		"purchased_unlocks": purchased_unlocks,
+		"crt_enabled": crt_enabled,
+		"master_volume": master_volume,
+	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(data))
@@ -43,3 +50,5 @@ func load_data() -> void:
 		purchased_unlocks = []
 		for id in data.get("purchased_unlocks", []):
 			purchased_unlocks.append(str(id))
+		crt_enabled = bool(data.get("crt_enabled", false))
+		master_volume = float(data.get("master_volume", 1.0))

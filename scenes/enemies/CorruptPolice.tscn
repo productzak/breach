@@ -20,7 +20,7 @@ shape = SubResource("CircleShape_body")
 
 [node name="Visual" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(0, -15, 10, -5, 10, 10, 5, 15, -5, 15, -10, 10, -10, -5)
-color = Color(0.15, 0.3, 0.72, 1)
+color = Color(0.1, 0.35, 0.95, 1)
 
 [node name="BadgeGlow" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(-5, -8, 5, -8, 5, -2, -5, -2)

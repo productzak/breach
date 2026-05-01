@@ -52,6 +52,10 @@ func play_selected(target_pos: Vector2, target_node: Node2D = null) -> void:
 	_apply_effect(card, target_pos, target_node)
 	_cooldowns[card.card_name] = card.cooldown
 	card_used.emit(card)
+	AudioManager.play("card_played")
+	var burst := load("res://scripts/effects/GlitchBurst.gd").new()
+	get_tree().current_scene.add_child(burst)
+	burst.global_position = target_pos
 
 func is_on_cooldown(card: HackCard) -> bool:
 	return _cooldowns.has(card.card_name)

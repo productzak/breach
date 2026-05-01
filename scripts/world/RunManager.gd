@@ -45,7 +45,7 @@ var _warden_cleared := false
 
 func _ready() -> void:
 	_setup_persistent_ui()
-	call_deferred("go_to_network")
+	AudioManager.set_master_volume(GameState.master_volume)
 
 func _setup_persistent_ui() -> void:
 	_hud = load("res://scenes/ui/HUD.tscn").instantiate()
@@ -121,12 +121,13 @@ func _load_room(room_id: int) -> void:
 func travel_to_room(target_id: int, came_from_dir: int) -> void:
 	_save_deck()
 	entry_direction = came_from_dir
-	_load_room(target_id)
+	ScreenEffects.flash_transition(func(): _load_room(target_id))
 
 func advance_floor() -> void:
 	_save_deck()
 	current_floor += 1
-	_generate_and_load()
+	AudioManager.play("floor_transition")
+	ScreenEffects.flash_transition(func(): _generate_and_load())
 
 # ── Room query ────────────────────────────────────────────────────────────────
 
@@ -155,6 +156,7 @@ func on_room_cleared(room_id: int) -> void:
 				player_stats.current_health + int(cw.effect_value), player_stats.max_health)
 	var def: RoomDef = rooms.get(room_id)
 	if def and def.type == RoomDef.Type.COMBAT:
+		AudioManager.play("room_cleared")
 		_show_draft()
 	_check_all_cleared()
 

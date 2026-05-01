@@ -85,6 +85,7 @@ func _check_phase_transitions() -> void:
 		_enter_phase(2)
 
 func _enter_phase(p: int) -> void:
+	AudioManager.play("boss_phase_change")
 	_phase = p
 	match p:
 		2:
@@ -180,12 +181,28 @@ func _fire_bullet(dir: Vector2) -> void:
 
 func take_damage(amount: int) -> void:
 	var actual := amount * 2 if _double_damage else amount
+	AudioManager.play("enemy_hurt")
+	_flash_hit()
+	_spawn_damage_number(actual)
 	health -= actual
 	health = max(0, health)
 	if health <= 0:
 		_on_death()
 
+func _flash_hit() -> void:
+	$Visual.modulate = Color(2.2, 2.2, 2.2)
+	var t := create_tween()
+	t.tween_property($Visual, "modulate", Color.WHITE if _phase == 1 else
+		(Color(1.0, 0.5, 1.0) if _phase == 2 else Color(1.0, 0.15, 0.15)), 0.14)
+
+func _spawn_damage_number(amount: int) -> void:
+	var dn := load("res://scripts/effects/DamageNumber.gd").new()
+	get_tree().current_scene.add_child(dn)
+	dn.global_position = global_position + Vector2(0.0, -26.0)
+	dn.setup(amount)
+
 func _on_death() -> void:
+	AudioManager.play("enemy_death")
 	if _cards_locked and _dm != null and _dm.has_method("unlock_cards"):
 		_dm.unlock_cards()
 	for i in 6:
@@ -193,4 +210,10 @@ func _on_death() -> void:
 		fx.base_color = Color(0.85, 0.15, 0.85)
 		fx.global_position = global_position + Vector2(randf_range(-60.0, 60.0), randf_range(-60.0, 60.0))
 		get_tree().current_scene.add_child(fx)
+	_camera_shake(9.0, 0.45)
 	queue_free()
+
+func _camera_shake(strength: float, duration: float) -> void:
+	var players := get_tree().get_nodes_in_group("player")
+	if not players.is_empty() and players[0].has_method("camera_shake"):
+		players[0].camera_shake(strength, duration)

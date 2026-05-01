@@ -19,7 +19,7 @@ shape = SubResource("CapsuleShape_body")
 
 [node name="Visual" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(0, -17, 11, -8, 13, 6, 8, 17, -8, 17, -13, 6, -11, -8)
-color = Color(0.22, 0.35, 0.55, 1)
+color = Color(0.1, 0.52, 1.0, 1)
 
 [node name="ShieldVisual" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(-18, -22, 18, -22, 22, 0, 18, 22, -18, 22, -22, 0)

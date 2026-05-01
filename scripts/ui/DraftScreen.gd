@@ -28,6 +28,7 @@ func _make_card_btn(card: HackCard) -> Button:
 
 func _pick(card: HackCard) -> void:
 	_deck_manager.add_card(card)
+	AudioManager.play("card_drafted")
 	_close()
 
 func _on_skip_pressed() -> void:

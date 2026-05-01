@@ -156,19 +156,44 @@ func on_breach(_player_node, duration: float) -> void:
 
 func take_damage(amount: int) -> void:
 	var actual := int(amount * 0.2) if _shield_active else amount
+	AudioManager.play("enemy_hurt")
+	_flash_hit()
+	_spawn_damage_number(actual)
 	health -= actual
 	if health <= 0:
 		_drop_currency()
 		_spawn_death_effect()
 		queue_free()
 
+func _flash_hit() -> void:
+	$Visual.modulate = Color(2.2, 2.2, 2.2)
+	var t := create_tween()
+	t.tween_property($Visual, "modulate", Color.WHITE, 0.11)
+
+func _spawn_damage_number(amount: int) -> void:
+	var dn := load("res://scripts/effects/DamageNumber.gd").new()
+	get_tree().current_scene.add_child(dn)
+	dn.global_position = global_position + Vector2(0.0, -16.0)
+	dn.setup(amount)
+
 func _drop_currency() -> void:
 	var players := get_tree().get_nodes_in_group("player")
 	if not players.is_empty() and players[0].get("stats") != null:
 		players[0].stats.currency += currency_drop
+		if currency_drop > 0:
+			var fx := load("res://scripts/effects/CurrencySparkle.gd").new()
+			fx.global_position = global_position
+			get_tree().current_scene.add_child(fx)
 
 func _spawn_death_effect() -> void:
+	AudioManager.play("enemy_death")
 	var fx := load("res://scenes/effects/DeathEffect.tscn").instantiate()
 	fx.base_color = $Visual.color
 	fx.global_position = global_position
 	get_tree().current_scene.add_child(fx)
+	_camera_shake(3.5, 0.13)
+
+func _camera_shake(strength: float, duration: float) -> void:
+	var players := get_tree().get_nodes_in_group("player")
+	if not players.is_empty() and players[0].has_method("camera_shake"):
+		players[0].camera_shake(strength, duration)

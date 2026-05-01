@@ -177,6 +177,7 @@ func _deduct(amount: int) -> bool:
 		return false
 	RunManager.player_stats.currency -= amount
 	RunManager.shop_spent_this_run   += amount
+	AudioManager.play("shop_purchase")
 	return true
 
 func _discounted(base_cost: int) -> int:

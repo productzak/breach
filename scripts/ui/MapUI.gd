@@ -8,7 +8,7 @@ const CELL    := 110.0
 const R_SIZE  := Vector2(74, 46)
 const ORIGIN  := Vector2(640, 300)
 
-const TYPE_NAMES := ["HUB", "FIGHT", "HACK", "LOOT", "SHOP", "BOSS"]
+const TYPE_NAMES := ["HUB", "FIGHT", "HACK", "LOOT", "SHOP", "BOSS", "WARDEN"]
 const TYPE_COLS  := [
 	Color(0.12, 0.50, 1.00),   # HUB
 	Color(0.90, 0.20, 0.20),   # COMBAT
@@ -16,6 +16,7 @@ const TYPE_COLS  := [
 	Color(0.10, 0.75, 0.30),   # LOOT
 	Color(0.90, 0.75, 0.10),   # BLACK_MARKET
 	Color(1.00, 0.40, 0.00),   # BOSS
+	Color(0.95, 0.60, 0.05),   # WARDEN
 ]
 
 func _ready() -> void:
@@ -44,9 +45,26 @@ func refresh(rooms: Dictionary, current_id: int) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_M:
-			visible = not visible
 			if visible:
+				_animate_close()
+			else:
+				visible = true
 				_rebuild()
+				_animate_open()
+
+func _animate_open() -> void:
+	$Control.modulate.a = 0.0
+	$Control.scale = Vector2(0.92, 0.92)
+	$Control.pivot_offset = Vector2(640, 360)
+	var t := create_tween().set_parallel()
+	t.tween_property($Control, "modulate:a", 1.0, 0.18)
+	t.tween_property($Control, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+func _animate_close() -> void:
+	var t := create_tween().set_parallel()
+	t.tween_property($Control, "modulate:a", 0.0, 0.14)
+	t.tween_property($Control, "scale", Vector2(0.92, 0.92), 0.14).set_trans(Tween.TRANS_QUAD)
+	t.chain().tween_callback(func(): visible = false)
 
 func _rebuild() -> void:
 	for n in _nodes:

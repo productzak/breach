@@ -16,11 +16,16 @@ signal died
 @onready var melee_timer: Timer = $MeleeTimer
 @onready var muzzle: Marker2D = $GunPivot/Muzzle
 @onready var deck_manager = $DeckManager
+@onready var camera: Camera2D = $Camera2D
 
 var can_fire: bool = true
 var can_melee: bool = true
 var invincible: bool = false
 var _attacking := false
+var _shake_strength := 0.0
+var _shake_timer := 0.0
+
+const _MUZZLE_FLASH_SCRIPT := preload("res://scripts/effects/MuzzleFlash.gd")
 
 func _ready() -> void:
 	add_to_group("player")
@@ -30,7 +35,6 @@ func _ready() -> void:
 		stats = PlayerStats.new()
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Right-click always cancels card selection
 	if event is InputEventMouseButton \
 			and event.button_index == MOUSE_BUTTON_RIGHT \
 			and event.pressed:
@@ -41,13 +45,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 	if event.pressed:
-		# Targeting mode: card click activates the selected card
 		if deck_manager.selected_card != null:
 			var target := _enemy_at(get_global_mouse_position())
 			deck_manager.play_selected(get_global_mouse_position(), target)
 			return
 
-		# Normal: move or attack
 		var enemy := _enemy_at(get_global_mouse_position())
 		if enemy:
 			var dist := global_position.distance_to(enemy.global_position)
@@ -62,8 +64,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	else:
 		_attacking = false
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	gun_pivot.look_at(get_global_mouse_position())
+
+	# Screenshake
+	if _shake_timer > 0.0:
+		_shake_timer -= delta
+		camera.offset = Vector2(
+			randf_range(-_shake_strength, _shake_strength),
+			randf_range(-_shake_strength, _shake_strength)
+		)
+		if _shake_timer <= 0.0:
+			camera.offset = Vector2.ZERO
 
 	if deck_manager.selected_card != null:
 		Input.set_default_cursor_shape(Input.CURSOR_CROSS)
@@ -103,6 +115,10 @@ func _fire() -> void:
 	get_tree().current_scene.add_child(bullet)
 	bullet.global_position = muzzle.global_position
 	bullet.direction = (get_global_mouse_position() - muzzle.global_position).normalized()
+	AudioManager.play("player_shoot")
+	var fx := _MUZZLE_FLASH_SCRIPT.new()
+	fx.global_position = muzzle.global_position
+	get_tree().current_scene.add_child(fx)
 
 func _melee_attack(target: Node2D) -> void:
 	if not can_melee:
@@ -111,6 +127,8 @@ func _melee_attack(target: Node2D) -> void:
 	melee_timer.start(melee_cooldown)
 	if target.has_method("take_damage"):
 		target.take_damage(melee_damage)
+		AudioManager.play("player_melee_hit")
+		camera_shake(2.5, 0.08)
 
 func _on_fire_timer_timeout() -> void:
 	can_fire = true
@@ -121,8 +139,15 @@ func _on_melee_timer_timeout() -> void:
 func take_damage(amount: int) -> void:
 	if invincible:
 		return
+	AudioManager.play("player_hurt")
+	camera_shake(4.0, 0.16)
 	stats.current_health -= amount
 	if stats.current_health <= 0:
 		stats.current_health = 0
+		AudioManager.play("player_death")
 		died.emit()
 		queue_free()
+
+func camera_shake(strength: float, duration: float) -> void:
+	_shake_strength = maxf(strength, _shake_strength)
+	_shake_timer = maxf(duration, _shake_timer)

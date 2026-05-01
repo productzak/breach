@@ -13,6 +13,8 @@ script = ExtResource("1_bullet")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_1")
 
+trail_color = Color(0.1, 1.0, 0.88, 1)
+
 [node name="Visual" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(-5, -2, 5, -2, 5, 2, -5, 2)
-color = Color(1, 0.95, 0.3, 1)
+color = Color(0.6, 1.0, 0.95, 1)

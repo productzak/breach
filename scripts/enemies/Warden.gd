@@ -144,6 +144,9 @@ func _on_shield_area_body_entered(body: Node2D) -> void:
 	body.queue_free()
 
 func take_damage(amount: int) -> void:
+	AudioManager.play("enemy_hurt")
+	_flash_hit()
+	_spawn_damage_number(amount)
 	health -= amount
 	health = max(0, health)
 	if health <= 0:
@@ -151,14 +154,32 @@ func take_damage(amount: int) -> void:
 		_spawn_death_effects()
 		queue_free()
 
+func _flash_hit() -> void:
+	$Visual.modulate = Color(2.2, 2.2, 2.2)
+	var t := create_tween()
+	t.tween_property($Visual, "modulate", Color.WHITE, 0.13)
+
+func _spawn_damage_number(amount: int) -> void:
+	var dn := load("res://scripts/effects/DamageNumber.gd").new()
+	get_tree().current_scene.add_child(dn)
+	dn.global_position = global_position + Vector2(0.0, -22.0)
+	dn.setup(amount)
+
 func _drop_currency() -> void:
 	var players := get_tree().get_nodes_in_group("player")
 	if not players.is_empty() and players[0].get("stats") != null:
 		players[0].stats.currency += currency_drop
 
 func _spawn_death_effects() -> void:
+	AudioManager.play("enemy_death")
 	for i in 4:
 		var fx := load("res://scenes/effects/DeathEffect.tscn").instantiate()
 		fx.base_color = Color(0.9, 0.4, 0.1)
 		fx.global_position = global_position + Vector2(randf_range(-40.0, 40.0), randf_range(-40.0, 40.0))
 		get_tree().current_scene.add_child(fx)
+	_camera_shake(7.0, 0.35)
+
+func _camera_shake(strength: float, duration: float) -> void:
+	var players := get_tree().get_nodes_in_group("player")
+	if not players.is_empty() and players[0].has_method("camera_shake"):
+		players[0].camera_shake(strength, duration)

@@ -5,6 +5,8 @@ var _max_health: int = 1
 var _bar_fill: ColorRect = null
 var _name_lbl: Label = null
 var _phase_lbl: Label = null
+var _panel: ColorRect = null
+var _intro_played := false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -17,15 +19,16 @@ func _build_ui() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
-	var panel := ColorRect.new()
-	panel.color = Color(0.04, 0.04, 0.08, 0.90)
-	panel.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	panel.offset_top = 8
-	panel.offset_bottom = 60
-	panel.offset_left = 220
-	panel.offset_right = -220
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(panel)
+	_panel = ColorRect.new()
+	_panel.color = Color(0.04, 0.04, 0.08, 0.90)
+	_panel.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	_panel.offset_top = -80
+	_panel.offset_bottom = -28
+	_panel.offset_left = 220
+	_panel.offset_right = -220
+	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(_panel)
+	var panel := _panel
 
 	_name_lbl = Label.new()
 	_name_lbl.set_anchors_preset(Control.PRESET_TOP_WIDE)
@@ -77,6 +80,12 @@ func _process(_delta: float) -> void:
 		_max_health = _boss.max_health
 		_name_lbl.text = _boss.boss_name
 		visible = true
+		if not _intro_played:
+			_intro_played = true
+			AudioManager.play("boss_intro")
+			var t := create_tween()
+			t.tween_property(_panel, "offset_top", 8.0, 0.38).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			t.parallel().tween_property(_panel, "offset_bottom", 60.0, 0.38).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 	var frac := clampf(float(_boss.health) / float(_max_health), 0.0, 1.0)
 	_bar_fill.anchor_right = frac

@@ -18,7 +18,7 @@ shape = SubResource("CircleShape_body")
 
 [node name="Visual" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(0, -16, 13, 5, 8, 16, -8, 16, -13, 5)
-color = Color(0.72, 0.18, 0.82, 1)
+color = Color(0.88, 0.08, 0.98, 1)
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
 
