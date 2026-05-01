@@ -40,5 +40,9 @@ shape = SubResource("CircleShape_detect")
 [node name="ShootTimer" type="Timer" parent="."]
 one_shot = true
 
+[node name="PatrolTimer" type="Timer" parent="."]
+one_shot = true
+
 [connection signal="body_entered" from="DetectionArea" to="." method="_on_detection_area_body_entered"]
 [connection signal="timeout" from="ShootTimer" to="." method="_on_shoot_timer_timeout"]
+[connection signal="timeout" from="PatrolTimer" to="." method="_on_patrol_timer_timeout"]

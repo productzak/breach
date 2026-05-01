@@ -8,19 +8,25 @@ enum State { IDLE, CHASE, ATTACK }
 @export var attack_range: float = 38.0
 @export var attack_damage: int = 15
 @export var attack_rate: float = 0.7
+@export var patrol_radius: float = 150.0
 
 @onready var nav_agent: NavigationAgent2D = $NavigationAgent2D
 @onready var attack_timer: Timer = $AttackTimer
+@onready var patrol_timer: Timer = $PatrolTimer
 
 var state: State = State.IDLE
 var player: Node2D = null
+var spawn_pos: Vector2
 
 func _ready() -> void:
 	add_to_group("enemies")
+	spawn_pos = global_position
 	nav_agent.path_desired_distance = 4.0
 	nav_agent.target_desired_distance = 4.0
 	attack_timer.wait_time = attack_rate
 	attack_timer.one_shot = true
+	patrol_timer.one_shot = true
+	call_deferred("_pick_patrol_point")
 
 func _on_detection_area_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player"):
@@ -34,14 +40,31 @@ func _physics_process(_delta: float) -> void:
 
 	match state:
 		State.IDLE:
-			_scan_for_player()
-			velocity = Vector2.ZERO
+			_do_idle()
 		State.CHASE:
 			_do_chase()
 		State.ATTACK:
 			_do_attack()
 
 	move_and_slide()
+
+func _do_idle() -> void:
+	_scan_for_player()
+	if nav_agent.is_navigation_finished():
+		velocity = Vector2.ZERO
+		if patrol_timer.is_stopped():
+			patrol_timer.start(randf_range(0.8, 2.0))
+	else:
+		var next := nav_agent.get_next_path_position()
+		velocity = (next - global_position).normalized() * (move_speed * 0.4)
+
+func _pick_patrol_point() -> void:
+	var angle := randf_range(0.0, TAU)
+	var dist := randf_range(40.0, patrol_radius)
+	nav_agent.target_position = spawn_pos + Vector2(cos(angle), sin(angle)) * dist
+
+func _on_patrol_timer_timeout() -> void:
+	_pick_patrol_point()
 
 func _scan_for_player() -> void:
 	for p in get_tree().get_nodes_in_group("player"):
