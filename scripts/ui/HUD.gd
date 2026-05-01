@@ -4,6 +4,7 @@ const BAR_MAX_WIDTH := 200.0
 
 @onready var health_fill: ColorRect = $Control/HealthBarFill
 @onready var health_label: Label = $Control/HealthLabel
+@onready var currency_label: Label = $Control/CurrencyLabel
 
 var _player: Node = null
 
@@ -19,6 +20,7 @@ func _process(_delta: float) -> void:
 	health_fill.size.x = BAR_MAX_WIDTH * pct
 	health_fill.color = _health_color(pct)
 	health_label.text = "HEALTH   %d / %d" % [stats.current_health, stats.max_health]
+	currency_label.text = "CR   %d" % stats.currency
 
 func _health_color(pct: float) -> Color:
 	if pct > 0.5:

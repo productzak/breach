@@ -9,6 +9,7 @@ enum State { IDLE, CHASE, ATTACK }
 @export var attack_damage: int = 15
 @export var attack_rate: float = 0.7
 @export var patrol_radius: float = 150.0
+@export var currency_drop: int = 8
 
 @onready var nav_agent: NavigationAgent2D = $NavigationAgent2D
 @onready var attack_timer: Timer = $AttackTimer
@@ -102,4 +103,10 @@ func _on_attack_timer_timeout() -> void:
 func take_damage(amount: int) -> void:
 	health -= amount
 	if health <= 0:
+		_drop_currency()
 		queue_free()
+
+func _drop_currency() -> void:
+	var players := get_tree().get_nodes_in_group("player")
+	if not players.is_empty() and players[0].get("stats") != null:
+		players[0].stats.currency += currency_drop

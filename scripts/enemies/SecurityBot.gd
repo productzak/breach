@@ -10,6 +10,7 @@ enum State { IDLE, CHASE, ATTACK }
 @export var bullet_damage: int = 12
 @export var bullet_scene: PackedScene
 @export var patrol_radius: float = 80.0
+@export var currency_drop: int = 15
 
 @onready var nav_agent: NavigationAgent2D = $NavigationAgent2D
 @onready var shoot_timer: Timer = $ShootTimer
@@ -114,4 +115,10 @@ func _shoot() -> void:
 func take_damage(amount: int) -> void:
 	health -= amount
 	if health <= 0:
+		_drop_currency()
 		queue_free()
+
+func _drop_currency() -> void:
+	var players := get_tree().get_nodes_in_group("player")
+	if not players.is_empty() and players[0].get("stats") != null:
+		players[0].stats.currency += currency_drop
