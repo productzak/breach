@@ -1,0 +1,39 @@
+[gd_scene load_steps=4 format=3 uid="uid://bplayer00001"]
+
+[ext_resource type="Script" path="res://scripts/player/Player.gd" id="1_player"]
+[ext_resource type="PackedScene" uid="uid://bbullet00001" path="res://scenes/projectiles/Bullet.tscn" id="2_bullet"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 14.0
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 5
+script = ExtResource("1_player")
+bullet_scene = ExtResource("2_bullet")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_1")
+
+[node name="Visual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-10, -14, 0, -18, 10, -14, 14, 0, 10, 14, 0, 18, -10, 14, -14, 0)
+color = Color(0.2, 0.65, 1, 1)
+
+[node name="GunPivot" type="Node2D" parent="."]
+
+[node name="GunBarrel" type="Polygon2D" parent="GunPivot"]
+polygon = PackedVector2Array(2, -3, 24, -3, 24, 3, 2, 3)
+color = Color(0.55, 0.8, 1, 1)
+
+[node name="Muzzle" type="Marker2D" parent="GunPivot"]
+position = Vector2(24, 0)
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="FireTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(1.2, 1.2)
+
+[connection signal="timeout" from="FireTimer" to="." method="_on_fire_timer_timeout"]
